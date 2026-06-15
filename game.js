@@ -14,6 +14,8 @@ const COLORS = [
   '#90caf9', // J - pale blue
   '#ffb74d', // L - orange
   '#b0bec5', // N - tuerca (nut), grey
+  '#ff5252', // BOMB - red
+  '#fff176', // RAYO - bright yellow
 ];
 
 const PIECES = [
@@ -26,9 +28,15 @@ const PIECES = [
   [[6,0,0],[6,6,6],[0,0,0]],                  // J
   [[0,0,7],[7,7,7],[0,0,0]],                  // L
   [[8,8,8],[8,0,8],[8,8,8]],                  // N - tuerca (hueco central)
+  [[9]],                                       // BOMB - destruye area 3x3
+  [[10]],                                      // RAYO - limpia fila y columna
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
+const BOMB_TYPE = 9;
+const RAYO_TYPE = 10;
+const POWERUP_LINES = 5; // cada cuántas líneas despejadas aparece un power-up
+const POWERUP_CELL_SCORE = 30; // puntos por celda destruida por un power-up
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -46,13 +54,16 @@ const themeSwitch = document.getElementById('theme-switch');
 const THEME_KEY = 'tetris-theme';
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let linesSincePowerup, pendingPowerup;
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
 }
 
-function randomPiece() {
-  const type = Math.floor(Math.random() * 8) + 1;
+function randomPiece(forceSpecial) {
+  const type = forceSpecial
+    ? (Math.random() < 0.5 ? BOMB_TYPE : RAYO_TYPE)
+    : Math.floor(Math.random() * 8) + 1;
   const shape = PIECES[type].map(row => [...row]);
   return { type, shape, x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2), y: 0 };
 }
@@ -98,6 +109,36 @@ function merge() {
         board[current.y + r][current.x + c] = current.shape[r][c];
 }
 
+function applyBomb() {
+  let destroyed = 0;
+  for (let r = current.y - 1; r <= current.y + 1; r++) {
+    for (let c = current.x - 1; c <= current.x + 1; c++) {
+      if (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c]) {
+        board[r][c] = 0;
+        destroyed++;
+      }
+    }
+  }
+  score += destroyed * POWERUP_CELL_SCORE;
+}
+
+function applyRayo() {
+  let destroyed = 0;
+  for (let c = 0; c < COLS; c++) {
+    if (board[current.y][c]) {
+      board[current.y][c] = 0;
+      destroyed++;
+    }
+  }
+  for (let r = 0; r < ROWS; r++) {
+    if (board[r][current.x]) {
+      board[r][current.x] = 0;
+      destroyed++;
+    }
+  }
+  score += destroyed * POWERUP_CELL_SCORE;
+}
+
 function clearLines() {
   let cleared = 0;
   for (let r = ROWS - 1; r >= 0; r--) {
@@ -113,6 +154,11 @@ function clearLines() {
     score += (LINE_SCORES[cleared] || 0) * level;
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
+    linesSincePowerup += cleared;
+    if (linesSincePowerup >= POWERUP_LINES) {
+      linesSincePowerup -= POWERUP_LINES;
+      pendingPowerup = true;
+    }
     updateHUD();
   }
 }
@@ -141,14 +187,21 @@ function softDrop() {
 }
 
 function lockPiece() {
-  merge();
+  if (current.type === BOMB_TYPE) {
+    applyBomb();
+  } else if (current.type === RAYO_TYPE) {
+    applyRayo();
+  } else {
+    merge();
+  }
   clearLines();
   spawn();
 }
 
 function spawn() {
   current = next;
-  next = randomPiece();
+  next = randomPiece(pendingPowerup);
+  pendingPowerup = false;
   if (collide(current.shape, current.x, current.y)) {
     endGame();
   }
@@ -174,6 +227,16 @@ function drawBlock(context, x, y, colorIndex, size, alpha) {
   // highlight
   context.fillStyle = themeColor('--block-highlight');
   context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+  if (colorIndex === BOMB_TYPE || colorIndex === RAYO_TYPE) {
+    context.font = `${Math.floor(size * 0.6)}px sans-serif`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(
+      colorIndex === BOMB_TYPE ? '💣' : '⚡',
+      x * size + size / 2,
+      y * size + size / 2 + 1
+    );
+  }
   context.globalAlpha = 1;
 }
 
@@ -288,6 +351,8 @@ function init() {
   gameOver = false;
   dropInterval = 1000;
   dropAccum = 0;
+  linesSincePowerup = 0;
+  pendingPowerup = false;
   lastTime = performance.now();
   next = randomPiece();
   spawn();

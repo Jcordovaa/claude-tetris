@@ -19,6 +19,24 @@ body {
   position: relative;
 }
 
+.game-title {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.letter-i { color: #4dd0e1; } /* I - cyan */
+.letter-o { color: #ffd54f; } /* O - yellow */
+.letter-t { color: #ba68c8; } /* T - purple */
+.letter-s { color: #81c784; } /* S - green */
+.letter-z { color: #e57373; } /* Z - red */
+.letter-j { color: #7986cb; } /* J - indigo */
+
 .game-container {
   display: flex;
   gap: 20px;

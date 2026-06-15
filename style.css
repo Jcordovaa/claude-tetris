@@ -35,7 +35,7 @@ body {
 .letter-t { color: #ba68c8; } /* T - purple */
 .letter-s { color: #81c784; } /* S - green */
 .letter-z { color: #e57373; } /* Z - red */
-.letter-j { color: #7986cb; } /* J - indigo */
+.letter-j { color: #90caf9; } /* J - pale blue */
 
 .game-container {
   display: flex;

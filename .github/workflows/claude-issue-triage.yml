@@ -1,0 +1,58 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    if: github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Issue Triage
+        id: claude-triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowed-tools "Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh issue view:*),Bash(gh label list:*)"'
+          prompt: |
+            Analiza el issue #${{ github.event.issue.number }} de este repositorio
+            (Tetris en JavaScript vanilla, archivos principales: game.js, index.html, style.css).
+
+            Pasos:
+            1. Lee el título y cuerpo del issue con `gh issue view ${{ github.event.issue.number }}`.
+            2. Ejecuta `gh label list` y usa EXCLUSIVAMENTE labels que ya existan en el repo.
+               Si ninguno aplica con precisión, no inventes uno nuevo; menciónalo en el diagnóstico.
+            3. Revisa el código fuente relevante (game.js, index.html, style.css) para
+               fundamentar el análisis con funciones/líneas concretas.
+            4. Aplica los labels apropiados con `gh issue edit ${{ github.event.issue.number }} --add-label "<label>"`
+               (tipo: bug/enhancement/question/documentation, etc. según corresponda).
+            5. Publica un comentario en español con `gh issue comment ${{ github.event.issue.number }}`
+               usando este formato exacto, empezando con el encabezado:
+
+               ## 🤖 Diagnóstico automático
+
+               **Resumen**: (descripción breve del problema o solicitud)
+
+               **Archivos/funciones implicados**: (rutas y nombres concretos, ej. game.js: rotateCW, tryRotate)
+
+               **Causa probable**: (análisis técnico de por qué ocurre, basado en el código actual)
+
+               **Enfoque de solución sugerido**: (pasos de alto nivel para resolverlo, SIN escribir código todavía)
+
+            Antes de comentar, revisa si ya existe un comentario que empiece con
+            "## 🤖 Diagnóstico automático" en este issue. Si existe y el evento es una edición,
+            actualiza ese comentario (`gh issue comment --edit-last` si fue el último, o edita su
+            contenido) en lugar de crear uno duplicado.
+
+            No implementes código, no crees pull requests ni ramas: solo etiqueta y diagnostica.

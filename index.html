@@ -66,6 +66,21 @@
             <li>⚡ Rayo: limpia fila y columna</li>
           </ul>
         </div>
+
+        <div class="panel-section">
+          <span class="label">MEJOR COMBO</span>
+          <span class="value" id="best-combo">0</span>
+        </div>
+        <div class="panel-section">
+          <span class="label">MAX LÍNEAS</span>
+          <span class="value" id="max-lines">0</span>
+        </div>
+
+        <div class="panel-section">
+          <span class="label">RECORDS</span>
+          <div id="highscores-list" class="highscores"></div>
+          <button id="reset-records-btn" class="link-btn">Reiniciar récords</button>
+        </div>
       </aside>
     </div>
 
@@ -73,6 +88,20 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+
+        <div id="save-score-section" class="hidden">
+          <span class="label">¡NUEVO RÉCORD! INGRESA TU NOMBRE</span>
+          <div class="save-score-row">
+            <input type="text" id="player-name" maxlength="12" placeholder="AAA" autocomplete="off" />
+            <button id="save-score-btn">Guardar</button>
+          </div>
+        </div>
+
+        <div class="overlay-highscores">
+          <span class="label">RECORDS</span>
+          <div id="overlay-highscores" class="highscores"></div>
+        </div>
+
         <button id="restart-btn">Reiniciar</button>
       </div>
     </div>

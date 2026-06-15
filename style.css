@@ -157,6 +157,71 @@ kbd {
   color: var(--kbd-color);
 }
 
+/* ---- Highscores ---- */
+.highscores {
+  display: flex;
+  flex-direction: column;
+}
+
+.highscores-empty {
+  font-size: 11px;
+  color: var(--controls-color);
+}
+
+.highscores-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+}
+
+.highscores-table td {
+  padding: 2px 4px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.highscores-table td:first-child {
+  color: var(--label-color);
+}
+
+.highscores-table td:nth-child(3),
+.highscores-table td:nth-child(4) {
+  text-align: right;
+  color: var(--value-color);
+}
+
+.highscore-highlight {
+  background: color-mix(in srgb, var(--value-color) 20%, transparent);
+  border-left: 2px solid var(--value-color);
+  border-radius: 4px;
+}
+
+.highscore-highlight td {
+  font-weight: 700;
+}
+
+.highscore-highlight td:first-child {
+  padding-left: 6px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--label-color);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  align-self: flex-start;
+}
+
+.link-btn:hover {
+  color: var(--value-color);
+}
+
 /* ---- Overlay ---- */
 .overlay {
   position: absolute;
@@ -210,6 +275,62 @@ kbd {
 
 #restart-btn:hover {
   background: var(--btn-hover);
+}
+
+/* ---- Save score / overlay records ---- */
+#save-score-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+#save-score-section.hidden {
+  display: none;
+}
+
+.save-score-row {
+  display: flex;
+  gap: 6px;
+}
+
+#player-name {
+  width: 100px;
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 6px 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+#save-score-btn {
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s;
+}
+
+#save-score-btn:hover {
+  background: var(--btn-hover);
+}
+
+.overlay-highscores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
 }
 
 /* ---- Theme toggle ---- */
